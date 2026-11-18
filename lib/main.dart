@@ -1,14 +1,14 @@
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:get/get.dart';
-import 'package:my_notes/controller/notes_controller.dart';
+import 'package:my_notes/cubit/notes_cubit.dart';
+import 'package:my_notes/database/NotesDatabase.dart';
 import 'package:my_notes/views/notes_page.dart';
-import 'package:sqflite/sqflite.dart';
-import 'package:path/path.dart';
 
 void main() {
-  Get.put(NotesController());
   runApp(
-    MaterialApp(
+    BlocProvider(create:(_)=> NotesCubit(NotesDatabase())..loadNotes()
+    ,
+    child:MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
         appBar: AppBar(
@@ -17,7 +17,7 @@ void main() {
         ),
         body: NotesApp(),
       ),
-    ),
+    ),),
   );
 }
 

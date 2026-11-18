@@ -1,9 +1,10 @@
 class NoteData {
-  int? id;
-  String title;
-  String description;
-  String date;
-  bool isFavorite;
+  final int? id;
+  final String title;
+  final String description;
+  final String date;
+  final bool isFavorite;
+
   NoteData({
     this.id,
     required this.title,
@@ -20,5 +21,9 @@ class NoteData {
       date: map['date'] as String,
       isFavorite: map['isFavorite']==0?false:true,
     );
+  }
+
+  NoteData copyNote({String? title, String? description, bool? isFavourite,String? date}){
+    return NoteData(id:id,title: title??this.title, description: description?? this.description, date:date?? this.date,isFavorite: isFavourite??this.isFavorite);
   }
 }
