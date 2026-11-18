@@ -1,6 +1,5 @@
-import 'package:get/get.dart';
+
 import 'package:material_ui/material_ui.dart';
-import 'package:my_notes/controller/notes_controller.dart';
 import 'package:my_notes/model/note_model.dart';
 
 

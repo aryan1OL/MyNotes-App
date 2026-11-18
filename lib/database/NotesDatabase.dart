@@ -2,7 +2,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
 class NotesDatabase {
-  static Future<int> insertNote(
+  Future<int> insertNote(
     String title,
     String description,
     String date,
@@ -16,17 +16,17 @@ class NotesDatabase {
     });
   }
 
-  static Future<List<Map<String, Object?>>> getNotes() async {
+  Future<List<Map<String, Object?>>> getNotes() async {
     final db = await NotesDatabase.openDB();
     return await db.query('notes');
   }
 
-  static Future<void> deleteNote(int id) async {
+  Future<void> deleteNote(int id) async {
     final db = await NotesDatabase.openDB();
     await db.delete('notes', where: 'id = ?', whereArgs: [id]);
   }
 
-  static Future<void> updateFavorite(int id, bool isFavorite) async {
+  Future<void> updateFavorite(int id, bool isFavorite) async {
     final db = await NotesDatabase.openDB();
     await db.update(
       'notes',
@@ -36,7 +36,7 @@ class NotesDatabase {
     );
   }
 
-  static Future<void> updateNote(
+  Future<void> updateNote(
     int id,
     String title,
     String description,
