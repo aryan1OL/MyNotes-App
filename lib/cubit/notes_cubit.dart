@@ -1,9 +1,7 @@
 import 'package:my_notes/cubit/notes_state.dart';
-import 'package:my_notes/database/NotesDatabase.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_notes/database/NotesHiveDatabase.dart';
-import 'package:my_notes/database/Notes_Repository.dart';
-import 'package:my_notes/model/note_model.dart';
+import 'package:my_notes/database/notes_repository.dart';
+import 'package:my_notes/model/note.dart';
 
 class NotesCubit extends Cubit<NotesState> {
   final NotesRepository _repo;
@@ -12,15 +10,15 @@ class NotesCubit extends Cubit<NotesState> {
   Future<void> loadNotes() async {
     emit(NotesLoading());
     try {
-      final List<Map<String, Object?>> notes = await _repo.getNotes();
-      final convertedNotes = notes.map((row)=>NoteData.fromMap(row)).toList();
-      emit(NotesLoaded(convertedNotes));
+      final List<Note> notes = await _repo.getNotes();
+      //final sqlNotes=await _repo.getNotes();
+      emit(NotesLoaded(notes));
     } catch (_) {
       emit(NotesError('Could not load notes'));
     }
   }
 
-  Future<void> addNotes(String title, String description) async {
+  Future<void> addNote(String title, String description) async {
     final current = state;
     if (current is! NotesLoaded) return;
 
@@ -29,8 +27,7 @@ class NotesCubit extends Cubit<NotesState> {
       return;
     }
 
-    final now = DateTime.now();
-    String date='${now.day}-${now.month}-${now.year}';
+    final date = DateTime.now().toIso8601String();
 
     try {
       int id=await _repo.insertNote(
@@ -38,7 +35,7 @@ class NotesCubit extends Cubit<NotesState> {
         description.trim(),
         date,
       );
-      emit(NotesLoaded([NoteData(
+      emit(NotesLoaded([Note(
         id:id,
       title: title.trim(),
         description: description.trim(),
@@ -49,7 +46,7 @@ class NotesCubit extends Cubit<NotesState> {
     }
   }
 
-  Future<void> deleteNotes(int id) async {
+  Future<void> deleteNote(int id) async {
     final current = state;
     if (current is! NotesLoaded) return;
 
@@ -67,13 +64,13 @@ class NotesCubit extends Cubit<NotesState> {
     final current = state;
     if (current is! NotesLoaded) return;
 
-    final NoteData currentNote = current.notes.firstWhere((n) => n.id == id);
+    final Note currentNote = current.notes.firstWhere((n) => n.id == id);
 
     bool newFavoriteState = !currentNote.isFavorite;
 
     final newList = current.notes
         .map(
-          (n) => n.id == id ? n.copyNote(isFavourite: newFavoriteState) : n,
+          (n) => n.id == id ? n.copyWith(isFavorite: newFavoriteState) : n,
         )
         .toList();
 
@@ -96,14 +93,13 @@ class NotesCubit extends Cubit<NotesState> {
       emit(NotesLoaded(current.notes, message: 'Title cannot be empty'));
       return;
     }
-    final now = DateTime.now();
-    String date='${now.day}-${now.month}-${now.year}';
+    final date = DateTime.now().toIso8601String();
 
     final trimmedTitle=title.trim();
     final trimmedDescription=description.trim();
     final newList = current.notes
         .map(
-          (n) => n.id == id ? n.copyNote(title: trimmedTitle,description: trimmedDescription,date: date) : n,
+          (n) => n.id == id ? n.copyWith(title: trimmedTitle,description: trimmedDescription,date: date) : n,
     )
         .toList();
 

@@ -2,8 +2,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:my_notes/cubit/notes_cubit.dart';
 import 'package:my_notes/cubit/notes_state.dart';
+import 'package:my_notes/cubit/settings_cubit.dart';
+import 'package:my_notes/model/note.dart';
+import 'package:my_notes/settings/SettingStorage.dart';
 import 'package:my_notes/widget/EmptyNote.dart';
 import 'package:my_notes/widget/note_card.dart';
+
+enum NoteFilter { all, favorites }
 
 class NotesApp extends StatefulWidget {
   const NotesApp({super.key});
@@ -12,12 +17,16 @@ class NotesApp extends StatefulWidget {
   State<NotesApp> createState() => _NotesAppState();
 }
 
+
 class _NotesAppState extends State<NotesApp> {
   final TextEditingController titleController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
 
+
+
   bool isList = true;
   bool addNoteActive = false;
+  NoteFilter filter = NoteFilter.all;
 
   void toggleIsList() {
     setState(() {
@@ -31,11 +40,22 @@ class _NotesAppState extends State<NotesApp> {
     super.dispose();
   }
 
+  List<Note> _sorted(List<Note> notes, SortOrder order) {
+    final copy = [...notes];
+    copy.sort((a, b) => order == SortOrder.newest
+        ? b.date.compareTo(a.date)
+        : a.date.compareTo(b.date));
+    return copy;
+  }
+
+
+
   @override
   Widget build(BuildContext context) {
     //final NotesController notesController = Get.find<NotesController>();
 
     final screenWidth = MediaQuery.sizeOf(context).width;
+    final sortOrder = context.select((SettingsCubit c) => c.state.sortOrder);
 
     int columns = 1;
 
@@ -52,7 +72,6 @@ class _NotesAppState extends State<NotesApp> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 5),
-          // Add note button
           Row(
             children: [
               Expanded(
@@ -85,7 +104,6 @@ class _NotesAppState extends State<NotesApp> {
               ),
             ],
           ),
-
           addNoteActive
               ? Column(
                   children: [
@@ -117,7 +135,7 @@ class _NotesAppState extends State<NotesApp> {
                             descriptionController.text.trim().isNotEmpty) {
                           final now = DateTime.now();
                           final date = '${now.day}-${now.month}-${now.year}';
-                          await context.read<NotesCubit>().addNotes(
+                          await context.read<NotesCubit>().addNote(
                             titleController.text,
                             descriptionController.text,
                           );
@@ -130,6 +148,22 @@ class _NotesAppState extends State<NotesApp> {
                   ],
                 )
               : const SizedBox(),
+          Row(
+            children: [
+              ChoiceChip(
+                label: const Text('All'),
+                selected: filter == NoteFilter.all,
+                onSelected: (_) => setState(() => filter = NoteFilter.all),
+              ),
+              const SizedBox(width: 8),
+              ChoiceChip(
+                label: const Text('Favorites'),
+                avatar: const Icon(Icons.favorite, size: 16),
+                selected: filter == NoteFilter.favorites,
+                onSelected: (_) => setState(() => filter = NoteFilter.favorites),
+              ),
+            ],
+          ),
           Expanded(
             child: BlocConsumer<NotesCubit, NotesState>(
               listener: (context, state) {
@@ -143,70 +177,78 @@ class _NotesAppState extends State<NotesApp> {
                 return switch (state) {
                   NotesInitial() => Text('Initialised'),
                   NotesLoading() => Center(child: const CircularProgressIndicator()),
-                  NotesLoaded(:final notes) =>
-                    notes.isEmpty
+                  NotesLoaded(:final notes) =>(){
+                    var visible = _sorted(notes, sortOrder);
+                    if(filter==NoteFilter.favorites){
+                      visible=visible.where((n){return n.isFavorite==true;}).toList();
+                    }
+
+                    return visible.isEmpty
                         ? EmptyNote()
                         : isList
                         ? ListView.builder(
-                            itemCount: notes.length,
-                            itemBuilder: (context, index) {
-                              return NoteWidget(
-                                onFavoritePressed: () {
-                                  context.read<NotesCubit>().toggleFavorite(
-                                    notes[index].id!,
-                                  );
-                                },
-                                key: ObjectKey(notes[index]),
-                                noteData: notes[index],
-                                onDeletePressed: () {
-                                  context.read<NotesCubit>().deleteNotes(
-                                    notes[index].id!,
-                                  );
-                                },
+                      itemCount: visible.length,
+                      itemBuilder: (context, index) {
+                        return NoteWidget(
+                          onFavoritePressed: () {
+                            context.read<NotesCubit>().toggleFavorite(
+                              visible[index].id!,
+                            );
+                          },
+                          key: ObjectKey(visible[index].id),
+                          note: visible[index],
+                          onDeletePressed: () {
+                            context.read<NotesCubit>().deleteNote(
+                              visible[index].id!,
+                            );
+                          },
 
-                                onUpdatePressed: (title, description) async {
-                                  await context.read<NotesCubit>().updateNote(
-                                    notes[index].id!,
-                                    title,
-                                    description,
-                                  );
-                                },
-                              );
-                            },
-                          )
+                          onUpdatePressed: (title, description) async {
+                            await context.read<NotesCubit>().updateNote(
+                              visible[index].id!,
+                              title,
+                              description,
+                            );
+                          },
+                        );
+                      },
+                    )
                         : GridView.builder(
-                            gridDelegate:
-                                SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: columns,
-                                  crossAxisSpacing: 10,
-                                  mainAxisSpacing: 10,
-                                  childAspectRatio: 0.75,
-                                ),
-                            itemCount: notes.length,
-                            itemBuilder: (context, index) {
-                              return NoteWidget(
-                                onFavoritePressed: () {
-                                  context.read<NotesCubit>().toggleFavorite(
-                                    notes[index].id!,
-                                  );
-                                },
-                                noteData: notes[index],
-                                key: ObjectKey(notes[index]),
-                                onDeletePressed: () {
-                                  context.read<NotesCubit>().deleteNotes(
-                                    notes[index].id!,
-                                  );
-                                },
-                                onUpdatePressed: (title, description) async {
-                                  await context.read<NotesCubit>().updateNote(
-                                    notes[index].id!,
-                                    title,
-                                    description,
-                                  );
-                                },
-                              );
-                            },
-                          ),
+                      gridDelegate:
+                      SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: columns,
+                        crossAxisSpacing: 10,
+                        mainAxisSpacing: 10,
+                        childAspectRatio: 0.75,
+                      ),
+                      itemCount: visible.length,
+                      itemBuilder: (context, index) {
+                        return NoteWidget(
+                          onFavoritePressed: () {
+                            context.read<NotesCubit>().toggleFavorite(
+                              visible[index].id!,
+                            );
+                          },
+                          note: visible[index],
+                          key: ObjectKey(visible[index].id),
+                          onDeletePressed: () {
+                            context.read<NotesCubit>().deleteNote(
+                              visible[index].id!,
+                            );
+                          },
+                          onUpdatePressed: (title, description) async {
+                            await context.read<NotesCubit>().updateNote(
+                              visible[index].id!,
+                              title,
+                              description,
+                            );
+                          },
+                        );
+                      },
+                    );
+                  }()
+
+                ,
                   NotesError(:final message) => Text('There is some error:$message'),
                 };
               },
