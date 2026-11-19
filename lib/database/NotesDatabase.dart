@@ -1,7 +1,10 @@
+import 'package:my_notes/database/Notes_Repository.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
-class NotesDatabase {
+class NotesDatabase implements NotesRepository {
+
+  @override
   Future<int> insertNote(
     String title,
     String description,

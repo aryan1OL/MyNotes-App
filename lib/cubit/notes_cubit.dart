@@ -1,10 +1,12 @@
 import 'package:my_notes/cubit/notes_state.dart';
 import 'package:my_notes/database/NotesDatabase.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:my_notes/database/NotesHiveDatabase.dart';
+import 'package:my_notes/database/Notes_Repository.dart';
 import 'package:my_notes/model/note_model.dart';
 
 class NotesCubit extends Cubit<NotesState> {
-  final NotesDatabase _repo;
+  final NotesRepository _repo;
   NotesCubit(this._repo) : super(NotesInitial());
 
   Future<void> loadNotes() async {
