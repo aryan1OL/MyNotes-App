@@ -1,4 +1,5 @@
 import 'package:my_notes/database/Notes_Repository.dart';
+import 'package:my_notes/model/note.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
@@ -19,16 +20,20 @@ class NotesDatabase implements NotesRepository {
     });
   }
 
-  Future<List<Map<String, Object?>>> getNotes() async {
+  @override
+  Future<List<Note>> getNotes() async {
     final db = await NotesDatabase.openDB();
-    return await db.query('notes');
+    final rows=await db.query('notes');
+
+    return rows.map((note){return Note.fromMap(note);}).toList();
   }
 
+  @override
   Future<void> deleteNote(int id) async {
     final db = await NotesDatabase.openDB();
     await db.delete('notes', where: 'id = ?', whereArgs: [id]);
   }
-
+  @override
   Future<void> updateFavorite(int id, bool isFavorite) async {
     final db = await NotesDatabase.openDB();
     await db.update(
@@ -39,6 +44,7 @@ class NotesDatabase implements NotesRepository {
     );
   }
 
+  @override
   Future<void> updateNote(
     int id,
     String title,

@@ -1,20 +1,21 @@
 
 import 'package:material_ui/material_ui.dart';
-import 'package:my_notes/model/note_model.dart';
+import 'package:my_notes/model/note.dart';
+
 
 
 class NoteWidget extends StatefulWidget {
   final VoidCallback onFavoritePressed;
-  final NoteData noteData;
+  final Note note;
   final VoidCallback onDeletePressed;
   final Future<void> Function(String title,String description) onUpdatePressed;
 
-  NoteWidget({
+  const NoteWidget({
     super.key,
     required this.onFavoritePressed,
     required this.onDeletePressed,
     required this.onUpdatePressed,
-    required this.noteData,
+    required this.note,
   });
 
   @override
@@ -102,18 +103,18 @@ class _NoteWidgetState extends State<NoteWidget> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             NoteHeader(
-              title: widget.noteData.title,
-              isFavorite: widget.noteData.isFavorite,
+              title: widget.note.title,
+              isFavorite: widget.note.isFavorite,
               onFavoritePressed: widget.onFavoritePressed,
             ),
 
             const SizedBox(height: 8),
 
-            NoteDescription(description: widget.noteData.description),
+            NoteDescription(description: widget.note.description),
 
             const SizedBox(height: 8),
 
-            NoteFooter(onDeletePressed: widget.onDeletePressed,date: widget.noteData.date,onEditingPressed:startEditing,),
+            NoteFooter(onDeletePressed: widget.onDeletePressed,date: widget.note.date,onEditingPressed:startEditing,),
           ],
         ),
       ),
@@ -121,8 +122,8 @@ class _NoteWidgetState extends State<NoteWidget> {
   }
 
   void startEditing() {
-    titleController.text = widget.noteData.title;
-    descriptionController.text = widget.noteData.description;
+    titleController.text = widget.note.title;
+    descriptionController.text = widget.note.description;
 
     setState(() {
       isEditing = true;
@@ -180,6 +181,13 @@ class NoteFooter extends StatelessWidget {
   final String date;
   final VoidCallback onDeletePressed;
   final VoidCallback onEditingPressed;
+  String _formatDate(String stored) {
+    final d = DateTime.tryParse(stored);                 // 1
+    if (d == null) return stored;                        // 2
+    final day = d.day.toString().padLeft(2, '0');        // 3
+    final month = d.month.toString().padLeft(2, '0');
+    return '$day-$month-${d.year}';
+  }
 
   const NoteFooter({super.key,required this.date,required this.onDeletePressed,required this.onEditingPressed});
 
@@ -192,7 +200,7 @@ class NoteFooter extends StatelessWidget {
           children: [
             const Icon(Icons.calendar_month),
             const SizedBox(width: 4),
-            Text(date,style: TextStyle(color: Colors.white),),
+            Text(_formatDate(date),style: TextStyle(color: Colors.white),),
           ],
         ),
         Row(
