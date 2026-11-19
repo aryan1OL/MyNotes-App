@@ -3,13 +3,13 @@ import 'package:material_ui/material_ui.dart';
 import 'package:my_notes/model/note_model.dart';
 
 
-class Note extends StatefulWidget {
+class NoteWidget extends StatefulWidget {
   final VoidCallback onFavoritePressed;
   final NoteData noteData;
   final VoidCallback onDeletePressed;
   final Future<void> Function(String title,String description) onUpdatePressed;
 
-  Note({
+  NoteWidget({
     super.key,
     required this.onFavoritePressed,
     required this.onDeletePressed,
@@ -18,10 +18,10 @@ class Note extends StatefulWidget {
   });
 
   @override
-  State<Note> createState() => _NoteState();
+  State<NoteWidget> createState() => _NoteWidgetState();
 }
 
-class _NoteState extends State<Note> {
+class _NoteWidgetState extends State<NoteWidget> {
   bool isEditing=false;
   final TextEditingController titleController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();

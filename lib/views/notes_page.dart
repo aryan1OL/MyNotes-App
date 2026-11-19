@@ -150,7 +150,7 @@ class _NotesAppState extends State<NotesApp> {
                         ? ListView.builder(
                             itemCount: notes.length,
                             itemBuilder: (context, index) {
-                              return Note(
+                              return NoteWidget(
                                 onFavoritePressed: () {
                                   context.read<NotesCubit>().toggleFavorite(
                                     notes[index].id!,
@@ -184,7 +184,7 @@ class _NotesAppState extends State<NotesApp> {
                                 ),
                             itemCount: notes.length,
                             itemBuilder: (context, index) {
-                              return Note(
+                              return NoteWidget(
                                 onFavoritePressed: () {
                                   context.read<NotesCubit>().toggleFavorite(
                                     notes[index].id!,
