@@ -36,6 +36,7 @@ class _NoteWidgetState extends State<NoteWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return isEditing?Column(
       children: [
         const SizedBox(height: 10),
@@ -93,7 +94,6 @@ class _NoteWidgetState extends State<NoteWidget> {
 
       ],
     ):Card(
-      color: Colors.blue[900],
       elevation: 2,
       margin: const EdgeInsets.all(4),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -146,20 +146,21 @@ class NoteHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return ListTile(
       contentPadding: EdgeInsets.zero,
-      leading: const Icon(Icons.note, color: Colors.blue),
+      leading: Icon(Icons.note, color:cs.primary),
       title: Text(
         title,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
-        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold,color: Colors.white,),
+        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,color:cs.onPrimaryContainer,),
       ),
       trailing: IconButton(
         onPressed: onFavoritePressed,
         icon: Icon(
           isFavorite ? Icons.favorite : Icons.favorite_border,
-          color: Colors.red,
+          color: isFavorite ? cs.error : cs.onPrimaryContainer,
         ),
       ),
     );
@@ -173,7 +174,8 @@ class NoteDescription extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(description, maxLines: 3, overflow: TextOverflow.ellipsis,style: TextStyle(color: Colors.white),);
+    final cs = Theme.of(context).colorScheme;
+    return Text(description, maxLines: 3, overflow: TextOverflow.ellipsis,style: TextStyle(color: cs.onPrimaryContainer),);
   }
 }
 
@@ -193,14 +195,15 @@ class NoteFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         Row(
           children: [
-            const Icon(Icons.calendar_month),
+            Icon(Icons.calendar_month),
             const SizedBox(width: 4),
-            Text(_formatDate(date),style: TextStyle(color: Colors.white),),
+            Text(_formatDate(date),style: TextStyle(color: cs.onPrimaryContainer),),
           ],
         ),
         Row(
@@ -208,11 +211,11 @@ class NoteFooter extends StatelessWidget {
           children: [
             IconButton(
               onPressed: onDeletePressed,
-              icon: const Icon(Icons.delete_outline,color: Colors.white,),
+              icon:  Icon(Icons.delete_outline,color: cs.onPrimaryContainer,),
             ),
             IconButton(
               onPressed: onEditingPressed,
-              icon: const Icon(Icons.edit,color: Colors.white,),
+              icon:  Icon(Icons.edit,color:cs.onPrimaryContainer,),
             ),
           ],
         ),

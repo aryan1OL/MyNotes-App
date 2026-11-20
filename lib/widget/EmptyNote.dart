@@ -5,11 +5,12 @@ class EmptyNote extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.note_add_outlined, size: 70, color: Colors.blue),
+          Icon(Icons.note_add_outlined, size: 70, color: cs.primary),
           SizedBox(height: 16),
           Text(
             'No Notes Yet',
