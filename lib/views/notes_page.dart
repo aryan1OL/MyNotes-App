@@ -75,27 +75,11 @@ class _NotesAppState extends State<NotesApp> {
           Row(
             children: [
               Expanded(
-                child: TextButton(
-                  onPressed: () {
-                    setState(() {
-                      addNoteActive = !addNoteActive;
-                    });
-                  },
-                  style: TextButton.styleFrom(
-                    backgroundColor: Colors.blue[900],
-                    foregroundColor: Colors.white,
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        addNoteActive ? 'x Cancel' : '+ Add Note',
-                        style: TextStyle(color: Colors.white, fontSize: 20),
-                      ),
-                    ],
+                  child: FilledButton(
+                    onPressed: () => setState(() => addNoteActive = !addNoteActive),
+                    child: Text(addNoteActive ? 'Cancel' : '+ Add note'),
                   ),
                 ),
-              ),
               IconButton(
                 onPressed: () {
                   toggleIsList();
@@ -117,9 +101,7 @@ class _NotesAppState extends State<NotesApp> {
                         border: OutlineInputBorder(),
                       ),
                     ),
-
                     const SizedBox(height: 10),
-
                     TextField(
                       controller: descriptionController,
                       decoration: const InputDecoration(

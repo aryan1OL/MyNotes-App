@@ -7,6 +7,7 @@ import 'package:my_notes/cubit/settings_state.dart';
 import 'package:my_notes/database/NotesHiveDatabase.dart';
 import 'package:my_notes/model/note.dart';
 import 'package:my_notes/settings/SettingStorage.dart';
+import 'package:my_notes/theme/app_theme.dart';
 import 'package:my_notes/views/notes_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -30,26 +31,18 @@ Future<void> main() async {
         builder: (context, settings) {
           return MaterialApp(
             debugShowCheckedModeBanner: false,
-            theme: ThemeData(
-              colorSchemeSeed: Colors.blue,
-              brightness: Brightness.light,
-            ),
-            darkTheme: ThemeData(
-              colorSchemeSeed: Colors.blue,
-              brightness: Brightness.dark,
-            ),
+            theme: AppTheme.light(),
+            darkTheme: AppTheme.dark(),
             themeMode: settings.isDarkMode ? ThemeMode.dark : ThemeMode.light,
             home: Scaffold(
               appBar: AppBar(
-                backgroundColor: Colors.blue[900],
                 title: const Text(
                   'My Notes',
-                  style: TextStyle(color: Colors.white),
                 ),
                 actions: [
                   PopupMenuButton<SortOrder>(
                     tooltip: 'Sort notes',
-                    icon: const Icon(Icons.sort,color: Colors.white,),
+                    icon: const Icon(Icons.sort),
                     initialValue: settings.sortOrder,                                   // 1
                     onSelected: (order) => context.read<SettingsCubit>().setSortOrder(order),  // 2
                     itemBuilder: (context) => const [                                   // 3
@@ -60,7 +53,7 @@ Future<void> main() async {
                   IconButton(
                     tooltip: settings.isDarkMode ? 'Light mode' : 'Dark mode',
                     icon: Icon(
-                      settings.isDarkMode ? Icons.light_mode : Icons.dark_mode,color: Colors.white,
+                      settings.isDarkMode ? Icons.light_mode : Icons.dark_mode,
                     ),
                     onPressed: () =>
                         context.read<SettingsCubit>().toggleDarkMode(),
