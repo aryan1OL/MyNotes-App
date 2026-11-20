@@ -149,7 +149,7 @@ class NoteHeader extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     return ListTile(
       contentPadding: EdgeInsets.zero,
-      leading: Icon(Icons.note, color:cs.primary),
+      leading: Icon(Icons.sticky_note_2_outlined, color:cs.primary),
       title: Text(
         title,
         maxLines: 1,
